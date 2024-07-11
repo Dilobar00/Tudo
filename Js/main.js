@@ -12,16 +12,23 @@ let allBtn = document.querySelector(".all-btn");
 let complatedBtn = document.querySelector(".complated-btn");
 let unComplatedBtn = document.querySelector(".uncomplated-btn");
 
-let todos = [];
+let elChooseInput = document.querySelector(".choose-input")
+let elChooseImg = document.querySelector(".choose-img")
+
+let todos = JSON.parse(window.localStorage.getItem("todos")) || []
+let choosenImg = null
 
 elForm.addEventListener("submit", function (e) {
   e.preventDefault();
   const data = {
     id: todos.length + 1,
     value: e.target[0].value,
+    imgUrl:choosenImg,
     isComplated: false,
   };
   todos.push(data);
+  window.localStorage.setItem("todos", JSON.stringify(todos))
+  elChooseImg.src = "./images/choose.png"
   renderTodos(todos, elList);
   e.target.reset();
 });
@@ -44,6 +51,7 @@ function renderTodos(arr, list) {
             <span class="font-bold text-[22px]">${item.value}</span>
            </div>
            <div class="flex items-center gap-5">
+           <img src = ${item.imgUrl} width ="100" height = "70%"/>
            <input onclick ={changeCheckbox(${
              item.id
            })} type = "checkbox" class="form-checkbox">
@@ -65,17 +73,27 @@ function renderTodos(arr, list) {
     (item) => item.isComplated == false
   ).length;
 }
+
+renderTodos(todos, elList)
+
+elChooseInput.addEventListener("change", function(e){
+  elChooseImg.setAttribute("src", URL.createObjectURL(e.target.files[0]))
+  choosenImg = URL  .createObjectURL(e.target.files[0])
+})
                     
 function todoDeleteBtnClick(id) {
   const findedInddex = todos.findIndex((item) => item.id == id);
   todos.splice(findedInddex, 1);
   renderTodos(todos, elList);
+  window.localStorage.setItem("todos", JSON.stringify(todos))
 }
 
 function changeCheckbox(id) {
   const findedObj = todos.find((item) => item.id == id);
   findedObj.isComplated = !findedObj.isComplated;
   renderTodos(todos, elList);
+  window.localStorage.setItem("todos", JSON.stringify(todos))
+ 
 }
 
 function updateTodo(id) {
@@ -97,6 +115,7 @@ function updateTodoBtnClick(id) {
   modalWrapper.classList.remove("!top-0");
   elModal.classList.remove("!scale-100");
   renderTodos(todos, elList);
+  window.localStorage.setItem("todos", JSON.stringify(todos))
 }
 
 modalWrapper.addEventListener("click", function (e) {
