@@ -12,23 +12,23 @@ let allBtn = document.querySelector(".all-btn");
 let complatedBtn = document.querySelector(".complated-btn");
 let unComplatedBtn = document.querySelector(".uncomplated-btn");
 
-let elChooseInput = document.querySelector(".choose-input")
-let elChooseImg = document.querySelector(".choose-img")
+let elChooseInput = document.querySelector(".choose-input");
+let elChooseImg = document.querySelector(".choose-img");
 
-let todos = JSON.parse(window.localStorage.getItem("todos")) || []
-let choosenImg = null
+let todos = JSON.parse(window.localStorage.getItem("todos")) || [];
+let choosenImg = null;
 
 elForm.addEventListener("submit", function (e) {
   e.preventDefault();
   const data = {
     id: todos.length + 1,
     value: e.target[0].value,
-    imgUrl:choosenImg,
+    imgUrl: choosenImg,
     isComplated: false,
   };
   todos.push(data);
-  window.localStorage.setItem("todos", JSON.stringify(todos))
-  elChooseImg.src = "./images/choose.png"
+  window.localStorage.setItem("todos", JSON.stringify(todos));
+  elChooseImg.src = "./images/choose.png";
   renderTodos(todos, elList);
   e.target.reset();
 });
@@ -74,48 +74,62 @@ function renderTodos(arr, list) {
   ).length;
 }
 
-renderTodos(todos, elList)
+renderTodos(todos, elList);
 
-elChooseInput.addEventListener("change", function(e){
-  elChooseImg.setAttribute("src", URL.createObjectURL(e.target.files[0]))
-  choosenImg = URL  .createObjectURL(e.target.files[0])
-})
-                    
+elChooseInput.addEventListener("change", function (e) {
+  elChooseImg.setAttribute("src", URL.createObjectURL(e.target.files[0]));
+  choosenImg = URL.createObjectURL(e.target.files[0]);
+});
+
 function todoDeleteBtnClick(id) {
   const findedInddex = todos.findIndex((item) => item.id == id);
   todos.splice(findedInddex, 1);
   renderTodos(todos, elList);
-  window.localStorage.setItem("todos", JSON.stringify(todos))
+  window.localStorage.setItem("todos", JSON.stringify(todos));
 }
 
 function changeCheckbox(id) {
   const findedObj = todos.find((item) => item.id == id);
   findedObj.isComplated = !findedObj.isComplated;
   renderTodos(todos, elList);
-  window.localStorage.setItem("todos", JSON.stringify(todos))
- 
+  window.localStorage.setItem("todos", JSON.stringify(todos));
 }
 
 function updateTodo(id) {
   modalWrapper.classList.add("!top-0");
   elModal.classList.add("!scale-100");
   const updateObj = todos.find((item) => item.id == id);
+  console.log(updateObj);
   elModal.innerHTML = `
-    <div class ="p-5 flex items-center">
-      <input value = "${updateObj.value}" class="update-value py-3 w-[75%] pl-5 border-[1.5px] border-slate-500 rounded-lg outline-none focus:shadow-blue-500" placeholder="Update todo" type="text" name="update-todo"/>
-        <button onclick={updateTodoBtnClick(${id})} class="bg-blue-400 w-[25%] p-2.5 font-semibold text-white rounded-lg text-[20px]">Update</button>
+    <div class ="p-5">
+       <div class= "flex items-center">
+         <input value = "${updateObj.value}" class="update-value py-3 w-[75%] pl-5 border-[1.5px] border-slate-500 rounded-lg outline-none focus:shadow-blue-500" placeholder="Update todo" type="text" name="update-todo"/>
+         <button onclick={updateTodoBtnClick(${id})} class="bg-blue-400 w-[25%] p-2.5 font-semibold text-white rounded-lg text-[20px]">Update</button>
+       </div>
+        <label>
+          <input class="update-input hidden" type="file"/>
+          <img class="update-img" src=${updateObj.imgUrl} width="200" height="200" alt="Update img"/>
+        </label>
     </div>    
   `;
+
+  let elUpdateInputFile = document.querySelector(".update-input");
+  let elUpdateImgFile = document.querySelector(".update-img");
+  elUpdateInputFile.addEventListener("change", function (e) {
+    elUpdateImgFile.src = URL.createObjectURL(e.target.files[0]);
+  });
 }
 
 function updateTodoBtnClick(id) {
   const updateObj = todos.find((item) => item.id == id);
   let newValue = document.querySelector(".update-value").value;
+  let elUpdateImgFile = document.querySelector(".update-img").src;
   updateObj.value = newValue;
+  updateObj.imgUrl = elUpdateImgFile;
   modalWrapper.classList.remove("!top-0");
   elModal.classList.remove("!scale-100");
   renderTodos(todos, elList);
-  window.localStorage.setItem("todos", JSON.stringify(todos))
+  window.localStorage.setItem("todos", JSON.stringify(todos));
 }
 
 modalWrapper.addEventListener("click", function (e) {
@@ -125,19 +139,18 @@ modalWrapper.addEventListener("click", function (e) {
   }
 });
 
+allBtn.addEventListener("click", function () {
+  renderTodos(todos, elList);
+});
 
-allBtn.addEventListener("click", function(){
-  renderTodos(todos, elList)
-})
+complatedBtn.addEventListener("click", function () {
+  const complatedList = todos.filter((item) => item.isComplated == true);
+  renderTodos(complatedList, elList);
+});
 
-complatedBtn.addEventListener("click", function(){
-  const complatedList = todos.filter(item => item.isComplated == true)
-  renderTodos(complatedList, elList)
-})
-
-unComplatedBtn.addEventListener("click", function(){
-  const unComplatedList = todos.filter(item => item.isComplated == false)
-  renderTodos(unComplatedList, elList)
-})
+unComplatedBtn.addEventListener("click", function () {
+  const unComplatedList = todos.filter((item) => item.isComplated == false);
+  renderTodos(unComplatedList, elList);
+});
 
 //https://media.gq.com.mx/photos/60cf8f0a33c54bdef67610ee/16:9/w_2560%2Cc_limit/paisaje.jpg
